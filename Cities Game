@@ -1,0 +1,77 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(CitiesGame());
+}
+
+class CitiesGame extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Cities Game',
+      home: GameScreen(),
+    );
+  }
+}
+
+class GameScreen extends StatefulWidget {
+  @override
+  _GameScreenState createState() => _GameScreenState();
+}
+
+class _GameScreenState extends State<GameScreen> {
+  List<String> cities = [];
+  String? lastCity;
+  TextEditingController cityController = TextEditingController();
+  int currentPlayer = 1; 
+
+  void addCity() {
+    String newCity = cityController.text.trim();
+    
+    if (newCity.isNotEmpty) {
+      if (lastCity == null || newCity.toLowerCase().startsWith(lastCity!.toLowerCase().substring(lastCity!.length - 1))) {
+        setState(() {
+          cities.add(newCity);
+          lastCity = newCity;
+          cityController.clear();
+          currentPlayer = currentPlayer == 1 ? 2 : 1; 
+        });
+      } else {
+        showMessage('The city must start with the letter "${lastCity!.substring(lastCity!.length - 1)}"!');
+      }
+    }
+  }
+
+  void showMessage(String message) {
+    final snackBar = SnackBar(content: Text(message));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Cities Game')),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            Text('Player $currentPlayer\'s turn', style: TextStyle(fontSize: 24)),
+            TextField(
+              controller: cityController,
+              decoration: InputDecoration(labelText: 'Enter a city'),
+            ),
+            ElevatedButton(onPressed: addCity, child: Text('Add City')),
+            Expanded(
+              child: ListView.builder(
+                itemCount: cities.length,
+                itemBuilder: (context, index) {
+                  return ListTile(title: Text(cities[index]));
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
